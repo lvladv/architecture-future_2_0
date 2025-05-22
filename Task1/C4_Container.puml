@@ -1,0 +1,34 @@
+@startuml
+title Container Diagram
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Person(user, "Пользователь системы")
+Person(analitic, "Аналитик")
+
+System(Portal, "Портал самообслуживания")
+System(DWH, "DWH", "")
+System(BI, "BI", "BI-системы")
+System(AI, "AI", "ИИ-сервисы для работы с медицинскими данными")
+System(Kafka, "Kafka", "Интеграционная шина")
+
+Container_Boundary(Portal, "") {
+  Container(PortalUI, "UI", "Интрефейс портала", "")
+  Container(FinSystem, "FinService", "Финтех-сервисы", "")
+  Container(MedSystem, "MedSystem", "Внутренняя медицинская система", "")
+}
+
+Rel(user, Portal, "")
+Rel(PortalUI, FinSystem, "")
+Rel(PortalUI, MedSystem, "")
+Rel(MedSystem, FinSystem, "дополнительной бизнес-логикой под финтех")
+Rel(MedSystem, AI, "работа с ИИ-сервисами")
+
+Rel(Portal, Kafka, "медицинские/финтех данные")
+Rel( Kafka, DWH, "")
+Rel( DWH, BI, "")
+Rel( analitic, BI, "")
+
+@enduml
