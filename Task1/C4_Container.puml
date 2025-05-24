@@ -1,0 +1,51 @@
+@startuml
+title Container Diagram
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Person(user, "Пользователь системы")
+Person(analitic, "Аналитик")
+
+System(Portal, "Портал самообслуживания")
+
+System(AnaliticSystem, "Аналитичекая система", "")
+System(AI, "AI", "ИИ-сервисы для работы с медицинскими данными")
+
+Container_Boundary(Portal, "") {
+  Container(PortalUI, "UI", "Интрефейс портала", "")
+  Container(FinSystem, "FinService", "Финтех-сервисы", "")
+  Container(MedSystem, "MedSystem", "Внутренняя медицинская система", "")
+}
+
+Container_Boundary(AnaliticSystem, "") {
+  Container(DWH, "DWH", "")
+  Container(DWHOld, "DWHOld", "")
+  Container(BI, "BI", "BI-сервисы")
+  System(Kafka, "Kafka", "Kafka как буфер и транспорт для данных")
+  Container(ETL, "ETL", "Сервис преобразования данных (S3, Apache Flink, Airflow)")
+  Container(ELT, "ELT", "Хранилище сырых данных, S3")
+}
+
+Rel(user, Portal, "")
+Rel(PortalUI, FinSystem, "")
+Rel(PortalUI, MedSystem, "")
+Rel(MedSystem, FinSystem, "дополнительной бизнес-логикой под финтех")
+Rel(MedSystem, AI, "работа с ИИ-сервисами")
+
+Rel(Portal, Kafka, "медицинские/финтех данные")
+
+Rel(Kafka, ETL, "")
+Rel(Kafka, ELT, "")
+Rel(ELT, DWH,"не преобразованные данные")
+Rel(ETL, DWH, "преобразованные данные")
+Rel(ELT, DWHOld,"не преобразованные данные")
+Rel(ETL, DWHOld,"преобразованные данные")
+Rel(DWHOld, BI, "")
+Rel(DWH, BI,"")
+Rel(AnaliticSystem, AI, "")
+
+Rel( analitic, AnaliticSystem, "")
+
+@enduml
