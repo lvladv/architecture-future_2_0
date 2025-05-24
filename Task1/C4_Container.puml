@@ -9,15 +9,23 @@ Person(user, "Пользователь системы")
 Person(analitic, "Аналитик")
 
 System(Portal, "Портал самообслуживания")
-System(DWH, "DWH", "")
-System(BI, "BI", "BI-системы")
+
+System(AnaliticSystem, "Аналитичекая система", "")
 System(AI, "AI", "ИИ-сервисы для работы с медицинскими данными")
-System(Kafka, "Kafka", "Интеграционная шина")
 
 Container_Boundary(Portal, "") {
   Container(PortalUI, "UI", "Интрефейс портала", "")
   Container(FinSystem, "FinService", "Финтех-сервисы", "")
   Container(MedSystem, "MedSystem", "Внутренняя медицинская система", "")
+}
+
+Container_Boundary(AnaliticSystem, "") {
+  Container(DWH, "DWH", "")
+  Container(DWHOld, "DWHOld", "")
+  Container(BI, "BI", "BI-сервисы")
+  System(Kafka, "Kafka", "Kafka как буфер и транспорт для данных")
+  Container(ETL, "ETL", "Сервис преобразования данных (S3, Apache Flink, Airflow)")
+  Container(ELT, "ELT", "Хранилище сырых данных, S3")
 }
 
 Rel(user, Portal, "")
@@ -27,8 +35,17 @@ Rel(MedSystem, FinSystem, "дополнительной бизнес-логик�
 Rel(MedSystem, AI, "работа с ИИ-сервисами")
 
 Rel(Portal, Kafka, "медицинские/финтех данные")
-Rel( Kafka, DWH, "")
-Rel( DWH, BI, "")
-Rel( analitic, BI, "")
+
+Rel(Kafka, ETL, "")
+Rel(Kafka, ELT, "")
+Rel(ELT, DWH,"не преобразованные данные")
+Rel(ETL, DWH, "преобразованные данные")
+Rel(ELT, DWHOld,"не преобразованные данные")
+Rel(ETL, DWHOld,"преобразованные данные")
+Rel(DWHOld, BI, "")
+Rel(DWH, BI,"")
+Rel(AnaliticSystem, AI, "")
+
+Rel( analitic, AnaliticSystem, "")
 
 @enduml
